@@ -89,4 +89,13 @@
 
 .track-item[data-track="lifestyle"] .track-icon {
     background-color: rgba(78, 205, 196, 0.1);
+}
+
+/* 新增赛道的图标背景色 */
+.track-item[data-track="parenting"] .track-icon {
+    background-color: rgba(255, 107, 154, 0.1);
+}
+
+.track-item[data-track="wellness"] .track-icon {
+    background-color: rgba(85, 214, 190, 0.1);
 } 

@@ -35,6 +35,16 @@ const trackData = [
         id: 'lifestyle',
         name: '生活方式',
         icon: './images/icons/lifestyle.svg'
+    },
+    {
+        id: 'parenting',
+        name: '母婴育儿',
+        icon: './images/icons/parenting.svg'
+    },
+    {
+        id: 'wellness',
+        name: '健康养生',
+        icon: './images/icons/wellness.svg'
     }
 ];
 
@@ -200,6 +210,60 @@ const topicData = {
             id: 'l5',
             title: '宠物经济爆发：铲屎官消费行为解析',
             description: '深入探讨宠物市场的增长点与内容创作机会。'
+        }
+    ],
+    parenting: [
+        {
+            id: 'p1',
+            title: '幼儿早教哪些误区，80%的家长都踩坑了',
+            description: '揭秘幼儿早教中常见的认知误区，帮助家长科学育儿。'
+        },
+        {
+            id: 'p2',
+            title: '怎样处理孩子的"为什么"，培养孩子好奇心',
+            description: '解析儿童好奇心发展规律，提供科学回应孩子提问的方法。'
+        },
+        {
+            id: 'p3',
+            title: '婴幼儿营养餐搭配指南，宝妈必收藏',
+            description: '分享科学合理的婴幼儿饮食配方，满足不同月龄宝宝的营养需求。'
+        },
+        {
+            id: 'p4',
+            title: '新式亲子游戏：培养专注力的7个实用小方法',
+            description: '介绍适合不同年龄段儿童的专注力培养游戏，附详细操作指南。'
+        },
+        {
+            id: 'p5',
+            title: '解读育儿焦虑背后：当代父母如何科学减压',
+            description: '分析育儿焦虑产生的原因，提供实用的家长减压和自我调节方法。'
+        }
+    ],
+    wellness: [
+        {
+            id: 'w1',
+            title: '春季养生关键期，这些食疗方不容错过',
+            description: '结合中医理论，介绍适合春季的养生食材和简易食疗方案。'
+        },
+        {
+            id: 'w2',
+            title: '都市白领颈椎问题大起底，3个动作在办公室就能做',
+            description: '深度解析办公族颈椎问题的成因，提供实用的工间操和康复锻炼。'
+        },
+        {
+            id: 'w3',
+            title: '睡眠质量与长寿的关系：黄金睡眠如何实现',
+            description: '解读最新睡眠医学研究成果，分享提高睡眠质量的实用技巧。'
+        },
+        {
+            id: 'w4',
+            title: '四季养生茶饮指南，对症喝出健康好气色',
+            description: '根据不同体质和季节，推荐适合的养生茶饮配方及冲泡方法。'
+        },
+        {
+            id: 'w5',
+            title: '中医经络拍打法大全，每天10分钟激活全身',
+            description: '详解经络拍打的养生原理和操作方法，针对不同问题的拍打要点。'
         }
     ]
 };

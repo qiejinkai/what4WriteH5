@@ -32,7 +32,9 @@ function updateTrackTitle(trackId) {
         'entertainment': '娱乐',
         'education': '教育',
         'health': '健康',
-        'lifestyle': '生活方式'
+        'lifestyle': '生活方式',
+        'parenting': '母婴育儿',
+        'wellness': '健康养生'
     };
     
     const trackName = trackNameMap[trackId] || trackId;
