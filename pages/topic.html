@@ -35,7 +35,7 @@
 
             <!-- 生成结果区域 -->
             <section class="results-section" id="resultsSection">
-                <h3 class="results-title">热点话题推荐</h3>
+                <h3 class="results-title" id="resultsTitle">热点话题推荐</h3>
                 <div class="results-loading" id="resultsLoading">
                     <div class="loading-spinner"></div>
                     <p>正在为您生成话题...</p>
@@ -58,11 +58,14 @@
             <template id="topicItemTemplate">
                 <div class="topic-item">
                     <div class="topic-content">
-                        <h3 class="topic-title"></h3>
+                        <div class="topic-header">
+                            <h3 class="topic-title"></h3>
+                            <div class="topic-tag"></div>
+                        </div>
                         <p class="topic-desc"></p>
                     </div>
                     <div class="topic-actions">
-                        <button class="favorite-btn">
+                        <button class="favorite-btn" title="收藏话题">
                             <img src="../images/icons/star-outline.svg" alt="收藏" class="favorite-icon">
                         </button>
                     </div>

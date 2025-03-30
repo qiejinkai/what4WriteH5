@@ -56,8 +56,21 @@ function updateTrackTitle(trackId) {
     const trackName = trackNameMap[trackId] || trackId;
     
     // 更新页面显示
-    document.getElementById('currentTrack').textContent = trackName;
-    document.getElementById('trackName').textContent = trackName;
+    const currentTrackElement = document.getElementById('currentTrack');
+    if (currentTrackElement) {
+        currentTrackElement.textContent = trackName;
+    }
+    
+    const trackNameElement = document.getElementById('trackName');
+    if (trackNameElement) {
+        trackNameElement.textContent = trackName;
+    }
+    
+    // 更新结果标题
+    const resultsTitle = document.getElementById('resultsTitle');
+    if (resultsTitle) {
+        resultsTitle.textContent = `${trackName}领域热点话题`;
+    }
 }
 
 /**
@@ -282,13 +295,32 @@ function renderTopicList(topics) {
     resultsList.innerHTML = '';
     
     // 遍历话题数据并渲染
-    topics.forEach(topic => {
+    topics.forEach((topic, index) => {
         // 克隆模板
         const topicNode = document.importNode(template.content, true);
         
         // 填充数据
         topicNode.querySelector('.topic-title').textContent = topic.title;
         topicNode.querySelector('.topic-desc').textContent = topic.description;
+        
+        // 设置标签内容
+        const tagElement = topicNode.querySelector('.topic-tag');
+        const trackNameMap = {
+            'tech': '科技',
+            'finance': '财经',
+            'entertainment': '娱乐',
+            'education': '教育',
+            'health': '健康',
+            'lifestyle': '生活方式',
+            'parenting': '母婴育儿',
+            'wellness': '健康养生'
+        };
+        tagElement.textContent = `#${trackNameMap[currentTrackId] || currentTrackId}`;
+        
+        // 设置边框色彩变化（为了视觉多样性）
+        const topicItem = topicNode.querySelector('.topic-item');
+        const colors = ['#4A90E2', '#50C878', '#FF7F50', '#9370DB', '#FF6B6B'];
+        topicItem.style.borderLeftColor = colors[index % colors.length];
         
         // 设置收藏按钮数据和事件
         const favoriteBtn = topicNode.querySelector('.favorite-btn');
@@ -297,9 +329,27 @@ function renderTopicList(topics) {
             toggleFavorite(e.currentTarget, topic);
         });
         
+        // 检查是否已收藏
+        if (window.favoritedTopicIds && window.favoritedTopicIds.includes(topic.id)) {
+            favoriteBtn.classList.add('active');
+            const iconImg = favoriteBtn.querySelector('.favorite-icon');
+            iconImg.src = '../images/icons/star-filled.svg';
+        }
+        
         // 添加到结果列表
         resultsList.appendChild(topicNode);
     });
+    
+    // 添加初始动画效果
+    setTimeout(() => {
+        const topicItems = resultsList.querySelectorAll('.topic-item');
+        topicItems.forEach((item, index) => {
+            setTimeout(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }, 100);
 }
 
 /**
