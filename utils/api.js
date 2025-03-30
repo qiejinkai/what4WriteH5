@@ -294,8 +294,43 @@ function getTopicsByTrack(trackId) {
             
             if (!appKey) {
                 // 如果没有设置appKey，使用模拟数据
+                // 模拟网络延迟，分阶段显示加载状态
+                setTimeout(() => {
+                    // 可以通过事件或回调通知UI层更新加载状态
+                    if (window.dispatchEvent) {
+                        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                            detail: { 
+                                phase: 'connecting',
+                                progress: 0.3,
+                                trackId
+                            }
+                        }));
+                    }
+                }, 500);
+                
+                setTimeout(() => {
+                    if (window.dispatchEvent) {
+                        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                            detail: { 
+                                phase: 'generating',
+                                progress: 0.6,
+                                trackId
+                            }
+                        }));
+                    }
+                }, 1000);
+                
                 setTimeout(() => {
                     if (topicData[trackId]) {
+                        if (window.dispatchEvent) {
+                            window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                                detail: { 
+                                    phase: 'completed',
+                                    progress: 1.0,
+                                    trackId
+                                }
+                            }));
+                        }
                         resolve(topicData[trackId]);
                     } else {
                         reject(new Error('赛道不存在'));
@@ -317,7 +352,7 @@ function getTopicsByTrack(trackId) {
             };
             
             const trackName = trackNameMap[trackId] || trackId;
-            const prompt = `请为${trackName}领域生成10个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
+            const prompt = `请为${trackName}领域生成3个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
 {
   "code": 0,
   "message": "success",
@@ -331,6 +366,18 @@ function getTopicsByTrack(trackId) {
   ]
 }
 生成的话题要有创意、新颖、符合${trackName}领域的最新趋势，适合新媒体内容创作。`;
+
+            // 通知UI进入连接阶段
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'connecting',
+                        progress: 0.1,
+                        message: '正在连接AI服务...',
+                        trackId
+                    }
+                }));
+            }
 
             // 调用DeepSeek-R1模型API
             const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
@@ -352,6 +399,18 @@ function getTopicsByTrack(trackId) {
                 }),
             });
 
+            // 通知UI进入生成阶段
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'generating',
+                        progress: 0.5,
+                        message: '正在生成话题内容...',
+                        trackId
+                    }
+                }));
+            }
+
             // 处理响应
             if (!response.ok) {
                 const errorText = await response.text();
@@ -360,6 +419,18 @@ function getTopicsByTrack(trackId) {
             }
 
             const result = await response.json();
+            
+            // 通知UI进入格式化阶段
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'formatting',
+                        progress: 0.8,
+                        message: '整理数据格式...',
+                        trackId
+                    }
+                }));
+            }
             
             // 检查返回的数据格式
             if (result.choices && result.choices[0] && result.choices[0].message) {
@@ -378,6 +449,19 @@ function getTopicsByTrack(trackId) {
                                 item.id = `${trackId}_${index}`;
                             }
                         });
+                        
+                        // 通知UI加载完成
+                        if (window.dispatchEvent) {
+                            window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                                detail: { 
+                                    phase: 'completed',
+                                    progress: 1.0,
+                                    message: '加载完成',
+                                    trackId
+                                }
+                            }));
+                        }
+                        
                         resolve(data.data);
                     } else {
                         // 格式不符合预期，使用模拟数据

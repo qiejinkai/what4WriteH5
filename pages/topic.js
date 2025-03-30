@@ -5,6 +5,10 @@
 
 // 当前选中的赛道ID
 let currentTrackId = '';
+// 加载计时器
+let loadingTimer = null;
+// 记录开始时间
+let loadingStartTime = 0;
 
 // 初始化页面
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,6 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 初始化收藏功能
     initFavoriteFeature();
+    
+    // 初始化API加载进度监听
+    initApiLoadingProgressListener();
+    
+    // 初始隐藏加载提示
+    const resultsLoading = document.getElementById('resultsLoading');
+    if (resultsLoading) {
+        resultsLoading.style.display = 'none';
+    }
     
     // 自动加载话题列表
     loadTopics();
@@ -48,29 +61,196 @@ function updateTrackTitle(trackId) {
 }
 
 /**
- * 加载话题列表
+ * 开始显示加载状态和进度
  */
-function loadTopics() {
+function startLoadingProgress() {
+    // 显示加载状态
     const resultsLoading = document.getElementById('resultsLoading');
     const resultsList = document.getElementById('resultsList');
     
-    // 显示加载状态
-    DOMUtils.show(resultsLoading);
-    resultsList.innerHTML = ''; // 清空之前的结果
+    // 确保加载指示器可见
+    if (resultsLoading) {
+        resultsLoading.style.display = 'block';
+    }
+    
+    if (resultsList) {
+        resultsList.innerHTML = ''; // 清空之前的结果
+    }
+    
+    // 重置进度条
+    const loadingBarProgress = document.getElementById('loadingBarProgress');
+    if (loadingBarProgress) {
+        loadingBarProgress.style.width = '0%';
+    }
+    
+    // 重置步骤状态
+    resetLoadingSteps();
+    
+    // 设置第一个步骤为活跃状态
+    const stepConnecting = document.getElementById('stepConnecting');
+    if (stepConnecting) {
+        stepConnecting.classList.add('active');
+    }
+    
+    // 记录开始时间
+    loadingStartTime = Date.now();
+    
+    // 启动计时器
+    if (loadingTimer) {
+        clearInterval(loadingTimer);
+    }
+    
+    loadingTimer = setInterval(() => {
+        updateLoadingTimer();
+        updateLoadingProgress();
+    }, 100);
+    
+    // 延迟显示后续步骤
+    setTimeout(() => {
+        const stepGenerating = document.getElementById('stepGenerating');
+        if (stepGenerating) {
+            const stepConnecting = document.getElementById('stepConnecting');
+            if (stepConnecting) {
+                stepConnecting.classList.remove('active');
+            }
+            stepGenerating.classList.add('active');
+        }
+        
+        // 更新进度条到30%
+        if (loadingBarProgress) {
+            loadingBarProgress.style.width = '30%';
+        }
+    }, 1500);
+    
+    setTimeout(() => {
+        const stepFormatting = document.getElementById('stepFormatting');
+        if (stepFormatting) {
+            const stepGenerating = document.getElementById('stepGenerating');
+            if (stepGenerating) {
+                stepGenerating.classList.remove('active');
+            }
+            stepFormatting.classList.add('active');
+        }
+        
+        // 更新进度条到70%
+        if (loadingBarProgress) {
+            loadingBarProgress.style.width = '70%';
+        }
+    }, 4000);
+}
+
+/**
+ * 停止加载进度显示
+ */
+function stopLoadingProgress() {
+    // 停止计时器
+    if (loadingTimer) {
+        clearInterval(loadingTimer);
+        loadingTimer = null;
+    }
+    
+    // 隐藏加载状态
+    const resultsLoading = document.getElementById('resultsLoading');
+    if (resultsLoading) {
+        resultsLoading.style.display = 'none';
+    }
+    
+    // 重置步骤状态
+    resetLoadingSteps();
+}
+
+/**
+ * 重置所有加载步骤的状态
+ */
+function resetLoadingSteps() {
+    const steps = ['stepConnecting', 'stepGenerating', 'stepFormatting'];
+    steps.forEach(stepId => {
+        const step = document.getElementById(stepId);
+        if (step) {
+            step.classList.remove('active');
+        }
+    });
+}
+
+/**
+ * 更新加载计时器显示
+ */
+function updateLoadingTimer() {
+    const loadingTimer = document.getElementById('loadingTimer');
+    if (loadingTimer) {
+        const elapsed = Math.floor((Date.now() - loadingStartTime) / 1000);
+        loadingTimer.textContent = `${elapsed}秒`;
+    }
+}
+
+/**
+ * 更新加载进度条
+ */
+function updateLoadingProgress() {
+    const loadingBarProgress = document.getElementById('loadingBarProgress');
+    if (loadingBarProgress) {
+        const currentWidth = parseFloat(loadingBarProgress.style.width) || 0;
+        if (currentWidth < 95) {
+            // 进度缓慢前进，最多到95%（等待实际完成）
+            const newWidth = Math.min(95, currentWidth + 0.2);
+            loadingBarProgress.style.width = `${newWidth}%`;
+        }
+    }
+}
+
+/**
+ * 完成加载进度
+ */
+function completeLoadingProgress() {
+    const loadingBarProgress = document.getElementById('loadingBarProgress');
+    if (loadingBarProgress) {
+        loadingBarProgress.style.width = '100%';
+    }
+    
+    // 延迟一会再隐藏，让用户看到100%的状态
+    setTimeout(() => {
+        stopLoadingProgress();
+    }, 300);
+}
+
+/**
+ * 加载话题列表
+ */
+function loadTopics() {
+    // 开始显示加载进度
+    startLoadingProgress();
     
     // 调用API获取话题数据
     API.getTopicsByTrack(currentTrackId)
         .then(topics => {
-            // 隐藏加载状态
-            DOMUtils.hide(resultsLoading);
+            // 完成加载进度
+            completeLoadingProgress();
             
             // 渲染话题列表
             renderTopicList(topics);
         })
         .catch(error => {
             console.error('获取话题失败:', error);
-            DOMUtils.hide(resultsLoading);
-            resultsList.innerHTML = '<div class="error-message">获取话题失败，请重试</div>';
+            stopLoadingProgress();
+            
+            const resultsList = document.getElementById('resultsList');
+            if (resultsList) {
+                resultsList.innerHTML = `
+                    <div class="error-message">
+                        <p>获取话题失败: ${error.message || '未知错误'}</p>
+                        <p>请检查您的网络连接和API密钥设置，然后重试</p>
+                        <button id="retryButton" class="btn">重新尝试</button>
+                    </div>
+                `;
+                
+                // 添加重试按钮事件
+                const retryButton = document.getElementById('retryButton');
+                if (retryButton) {
+                    retryButton.addEventListener('click', () => {
+                        loadTopics();
+                    });
+                }
+            }
         });
 }
 
@@ -165,5 +345,66 @@ function toggleFavorite(button, topic) {
                 window.favoritedTopicIds.push(topic.id);
             }
         });
+    }
+}
+
+/**
+ * 初始化API加载进度监听器
+ */
+function initApiLoadingProgressListener() {
+    window.addEventListener('api-loading-progress', (event) => {
+        const { phase, progress, message, trackId } = event.detail;
+        
+        // 确保是当前赛道的进度更新
+        if (trackId === currentTrackId) {
+            updateLoadingUI(phase, progress, message);
+        }
+    });
+}
+
+/**
+ * 根据API加载阶段更新UI
+ * @param {string} phase 加载阶段
+ * @param {number} progress 进度值(0-1)
+ * @param {string} message 可选的消息
+ */
+function updateLoadingUI(phase, progress, message) {
+    const loadingBarProgress = document.getElementById('loadingBarProgress');
+    if (loadingBarProgress) {
+        loadingBarProgress.style.width = `${progress * 100}%`;
+    }
+    
+    // 重置所有步骤状态
+    resetLoadingSteps();
+    
+    // 根据阶段高亮对应步骤
+    switch (phase) {
+        case 'connecting':
+            const stepConnecting = document.getElementById('stepConnecting');
+            if (stepConnecting) {
+                stepConnecting.classList.add('active');
+                if (message) stepConnecting.textContent = message;
+            }
+            break;
+        case 'generating':
+            const stepGenerating = document.getElementById('stepGenerating');
+            if (stepGenerating) {
+                stepGenerating.classList.add('active');
+                if (message) stepGenerating.textContent = message;
+            }
+            break;
+        case 'formatting':
+            const stepFormatting = document.getElementById('stepFormatting');
+            if (stepFormatting) {
+                stepFormatting.classList.add('active');
+                if (message) stepFormatting.textContent = message;
+            }
+            break;
+        case 'completed':
+            // 完成加载，延迟一会再隐藏
+            setTimeout(() => {
+                stopLoadingProgress();
+            }, 500);
+            break;
     }
 } 

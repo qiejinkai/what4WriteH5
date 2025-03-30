@@ -39,6 +39,15 @@
                 <div class="results-loading" id="resultsLoading">
                     <div class="loading-spinner"></div>
                     <p>正在为您生成话题...</p>
+                    <div class="loading-progress">
+                        <div class="loading-bar">
+                            <div class="loading-bar-progress" id="loadingBarProgress"></div>
+                        </div>
+                        <div class="loading-step" id="stepConnecting">连接AI服务...</div>
+                        <div class="loading-step" id="stepGenerating">生成创意话题...</div>
+                        <div class="loading-step" id="stepFormatting">整理话题数据...</div>
+                        <div class="loading-timer" id="loadingTimer">0秒</div>
+                    </div>
                 </div>
                 <div class="results-list" id="resultsList">
                     <!-- 话题项目将通过JS动态添加 -->
