@@ -108,6 +108,17 @@ img {
     color: var(--primary-color);
 }
 
+.settings-icon {
+    padding: var(--spacing-sm);
+    cursor: pointer;
+}
+
+.setting-img {
+    width: 24px;
+    height: 24px;
+    color: var(--gray-700);
+}
+
 .back-button {
     padding: var(--spacing-sm);
     margin-right: var(--spacing-sm);

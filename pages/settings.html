@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>设置 - 今天写什么</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/settings.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="back-button">
+                <img src="../images/icons/back.svg" alt="返回" class="back-icon">
+            </div>
+            <h1 class="page-title">设置</h1>
+            <div class="placeholder"></div>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main class="main-content">
+            <section class="settings-section">
+                <div class="card">
+                    <h2 class="section-title">API设置</h2>
+                    <div class="setting-item">
+                        <label for="appKey" class="setting-label">AppKey</label>
+                        <input type="text" id="appKey" class="setting-input" placeholder="请输入应用AppKey">
+                    </div>
+                    <div class="button-container">
+                        <button id="saveSettings" class="btn">保存设置</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部导航 -->
+        <footer class="footer">
+            <div class="nav-item" data-page="home">
+                <img src="../images/icons/home.svg" alt="首页" class="nav-icon">
+                <span class="nav-text">首页</span>
+            </div>
+            <div class="nav-item" data-page="favorites">
+                <img src="../images/icons/star.svg" alt="收藏" class="nav-icon">
+                <span class="nav-text">我的收藏</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../utils/api.js"></script>
+    <script src="../utils/common.js"></script>
+    <script src="../pages/settings.js"></script>
+</body>
+</html> 

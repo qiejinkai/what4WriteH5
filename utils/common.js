@@ -35,6 +35,11 @@ const Navigation = {
                     './favorites.html' : 
                     './pages/favorites.html';
                 break;
+            case 'settings':
+                url = isInSubPage ? 
+                    './settings.html' : 
+                    './pages/settings.html';
+                break;
             default:
                 url = isInSubPage ? '../index.html' : './index.html';
         }

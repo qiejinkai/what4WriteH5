@@ -402,6 +402,14 @@ function exportFavoritesAsText() {
     return textContent;
 }
 
+/**
+ * 获取AppKey
+ * @returns {string} 应用的AppKey
+ */
+function getAppKey() {
+    return localStorage.getItem('app_key') || '';
+}
+
 // 导出API函数
 window.API = {
     getTracks,
@@ -409,5 +417,6 @@ window.API = {
     getFavorites,
     addToFavorites,
     removeFromFavorites,
-    exportFavoritesAsText
+    exportFavoritesAsText,
+    getAppKey
 }; 

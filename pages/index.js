@@ -7,6 +7,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 初始化赛道点击事件
     initTrackSelection();
+    // 初始化设置按钮
+    initSettingsButton();
 });
 
 /**
@@ -26,4 +28,17 @@ function initTrackSelection() {
             }
         });
     });
+}
+
+/**
+ * 初始化设置按钮
+ */
+function initSettingsButton() {
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            // 跳转到设置页面
+            Navigation.goToPage('settings');
+        });
+    }
 } 
