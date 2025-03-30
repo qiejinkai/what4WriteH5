@@ -44,8 +44,11 @@
                         <p class="favorite-desc"></p>
                     </div>
                     <div class="favorite-actions">
-                        <button class="remove-btn">
+                        <button class="remove-btn" title="移除收藏">
                             <img src="../images/icons/trash.svg" alt="删除" class="remove-icon">
+                        </button>
+                        <button class="prompt-btn" title="生成提示词">
+                            <img src="../images/icons/magic.svg" alt="生成提示词" class="prompt-icon">
                         </button>
                     </div>
                 </div>
@@ -63,6 +66,22 @@
                 <span class="nav-text">我的收藏</span>
             </div>
         </footer>
+    </div>
+
+    <!-- 提示词弹窗模板 -->
+    <div class="modal" id="promptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>提示词生成</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="prompt-text" id="promptText"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn copy-btn" id="copyPromptBtn">复制提示词</button>
+            </div>
+        </div>
     </div>
 
     <script src="../utils/api.js"></script>

@@ -210,19 +210,25 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: var(--spacing-md);
 }
 
-.favorite-btn {
+.favorite-btn, .prompt-btn {
     padding: var(--spacing-sm);
     border-radius: 50%;
     transition: background-color 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.favorite-btn:hover {
+.favorite-btn:hover, .prompt-btn:hover {
     background-color: var(--gray-200);
 }
 
-.favorite-icon {
+.favorite-icon, .prompt-icon {
     width: 24px;
     height: 24px;
     transition: all 0.2s ease;

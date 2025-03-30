@@ -99,10 +99,25 @@
 
 .favorite-actions {
     margin-left: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
 }
 
-.remove-btn {
+.remove-btn, .prompt-btn {
     padding: var(--spacing-sm);
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-btn:hover, .prompt-btn:hover {
+    background-color: var(--gray-200);
 }
 
 .remove-icon {
@@ -114,6 +129,12 @@
 
 .remove-btn:hover .remove-icon {
     opacity: 1;
+}
+
+.prompt-icon {
+    width: 20px;
+    height: 20px;
+    transition: all 0.2s ease;
 }
 
 /* 导出成功提示 */

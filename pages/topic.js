@@ -336,6 +336,12 @@ function renderTopicList(topics) {
             iconImg.src = '../images/icons/star-filled.svg';
         }
         
+        // 设置提示词按钮事件
+        const promptBtn = topicNode.querySelector('.prompt-btn');
+        promptBtn.addEventListener('click', () => {
+            showPromptModal(topic, trackNameMap[currentTrackId] || currentTrackId);
+        });
+        
         // 添加到结果列表
         resultsList.appendChild(topicNode);
     });
@@ -350,6 +356,92 @@ function renderTopicList(topics) {
             }, index * 100);
         });
     }, 100);
+
+    // 初始化弹窗
+    initPromptModal();
+}
+
+/**
+ * 初始化提示词弹窗
+ */
+function initPromptModal() {
+    const modal = document.getElementById('promptModal');
+    const closeBtn = modal.querySelector('.close-btn');
+    const copyBtn = document.getElementById('copyPromptBtn');
+    
+    // 关闭按钮事件
+    closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
+    
+    // 点击弹窗外部关闭
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+    
+    // 复制按钮事件
+    copyBtn.addEventListener('click', () => {
+        const promptText = document.getElementById('promptText');
+        
+        // 创建临时textarea元素用于复制
+        const textarea = document.createElement('textarea');
+        textarea.value = promptText.textContent;
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+            // 执行复制
+            document.execCommand('copy');
+            
+            // 显示复制成功状态
+            copyBtn.classList.add('success');
+            copyBtn.textContent = '复制成功';
+            
+            // 2秒后恢复按钮状态
+            setTimeout(() => {
+                copyBtn.classList.remove('success');
+                copyBtn.textContent = '复制提示词';
+            }, 2000);
+        } catch (err) {
+            console.error('复制失败:', err);
+        }
+        
+        // 移除临时元素
+        document.body.removeChild(textarea);
+    });
+}
+
+/**
+ * 显示提示词弹窗
+ * @param {Object} topic 话题对象
+ * @param {string} trackName 赛道名称
+ */
+function showPromptModal(topic, trackName) {
+    const modal = document.getElementById('promptModal');
+    const promptText = document.getElementById('promptText');
+    
+    // 生成提示词
+    const prompt = `我是一个新媒体作者，帮我生成一篇原创文章。
+平台：今日头条。
+赛道：${trackName}。
+风格：语言风格口语化，消除AI生成痕迹。
+内容：内容深刻，发人深省，有另辟蹊径的观点更好。
+数据：多引用真实兰礼盒科学数据分析，并在文末标明引用出处。
+主题：${topic.title}。
+描述：${topic.description}`;
+    
+    // 设置弹窗内容
+    promptText.textContent = prompt;
+    
+    // 显示弹窗
+    modal.classList.add('active');
+    
+    // 重置复制按钮状态
+    const copyBtn = document.getElementById('copyPromptBtn');
+    copyBtn.classList.remove('success');
+    copyBtn.textContent = '复制提示词';
 }
 
 /**
