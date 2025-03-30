@@ -141,7 +141,7 @@ function initGoHomeButton() {
     
     if (goHomeBtn) {
         goHomeBtn.addEventListener("click", () => {
-            Navigation.goToPage("home");
+            window.location.href = "../index.html";
         });
     }
 } 

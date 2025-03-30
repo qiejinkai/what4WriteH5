@@ -16,20 +16,27 @@ const Navigation = {
             .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
             .join('&');
         
+        // 判断当前是否在子页面
+        const isInSubPage = window.location.pathname.includes('/pages/');
+        
         // 构建完整URL
         let url = '';
         switch (pageName) {
             case 'home':
-                url = './index.html';
+                url = isInSubPage ? '../index.html' : './index.html';
                 break;
             case 'topic':
-                url = `./pages/topic.html${queryParams ? '?' + queryParams : ''}`;
+                url = isInSubPage ? 
+                    `./topic.html${queryParams ? '?' + queryParams : ''}` : 
+                    `./pages/topic.html${queryParams ? '?' + queryParams : ''}`;
                 break;
             case 'favorites':
-                url = './pages/favorites.html';
+                url = isInSubPage ? 
+                    './favorites.html' : 
+                    './pages/favorites.html';
                 break;
             default:
-                url = './index.html';
+                url = isInSubPage ? '../index.html' : './index.html';
         }
         
         // 跳转
