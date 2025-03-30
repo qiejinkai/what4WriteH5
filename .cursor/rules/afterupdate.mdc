@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# 每次操作代码改动后，自动记录改动日志
+1. 记录到README.MD文件中
+2. 如果没有README.MD，则自动进行创建
+3. 日志需添加精确地时间，格式为'yyyy-MM-dd HH:mm:ss'

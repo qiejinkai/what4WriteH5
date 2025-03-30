@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>热点话题 - 今天写什么</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/topic.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="back-button">
+                <img src="../images/icons/back.svg" alt="返回" class="back-icon">
+            </div>
+            <div class="track-title">
+                <h1 id="currentTrack">科技</h1>
+            </div>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main class="main-content">
+            <!-- 生成按钮区域 -->
+            <section class="generate-section">
+                <div class="generate-card">
+                    <h2 class="generate-title">点击生成今日热点话题</h2>
+                    <p class="generate-desc">为您提供最新最热的<span id="trackName">科技</span>领域话题</p>
+                    <button id="generateBtn" class="generate-button">
+                        <img src="../images/icons/magic.svg" alt="生成" class="generate-icon">
+                        <span>一键生成</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 生成结果区域 -->
+            <section class="results-section" id="resultsSection">
+                <h3 class="results-title">热点话题推荐</h3>
+                <div class="results-loading" id="resultsLoading">
+                    <div class="loading-spinner"></div>
+                    <p>正在为您生成话题...</p>
+                </div>
+                <div class="results-list" id="resultsList">
+                    <!-- 话题项目将通过JS动态添加 -->
+                </div>
+            </section>
+
+            <!-- 话题项目模板 -->
+            <template id="topicItemTemplate">
+                <div class="topic-item">
+                    <div class="topic-content">
+                        <h3 class="topic-title"></h3>
+                        <p class="topic-desc"></p>
+                    </div>
+                    <div class="topic-actions">
+                        <button class="favorite-btn">
+                            <img src="../images/icons/star-outline.svg" alt="收藏" class="favorite-icon">
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </main>
+
+        <!-- 底部导航 -->
+        <footer class="footer">
+            <div class="nav-item" data-page="home">
+                <img src="../images/icons/home.svg" alt="首页" class="nav-icon">
+                <span class="nav-text">首页</span>
+            </div>
+            <div class="nav-item" data-page="favorites">
+                <img src="../images/icons/star.svg" alt="收藏" class="nav-icon">
+                <span class="nav-text">我的收藏</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../utils/api.js"></script>
+    <script src="../utils/common.js"></script>
+    <script src="../pages/topic.js"></script>
+</body>
+</html> 

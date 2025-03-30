@@ -1,0 +1,151 @@
+/* 热点话题页面样式 */
+
+/* 顶部标题 */
+.track-title h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+/* 生成区域 */
+.generate-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.generate-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.generate-title {
+    color: var(--gray-900);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+}
+
+.generate-desc {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.generate-button {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 30px;
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: 1rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+}
+
+.generate-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 5px rgba(74, 144, 226, 0.2);
+}
+
+.generate-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: var(--spacing-sm);
+}
+
+/* 结果区域 */
+.results-section {
+    margin-top: var(--spacing-xl);
+}
+
+.results-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--spacing-sm);
+}
+
+.results-loading {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    color: var(--gray-600);
+    display: none; /* 默认隐藏 */
+}
+
+.results-loading p {
+    margin-top: var(--spacing-md);
+}
+
+/* 话题列表 */
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.topic-item {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.topic-content {
+    flex: 1;
+}
+
+.topic-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-xs);
+}
+
+.topic-desc {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    line-height: 1.5;
+}
+
+.topic-actions {
+    margin-left: var(--spacing-md);
+}
+
+.favorite-btn {
+    padding: var(--spacing-sm);
+}
+
+.favorite-icon {
+    width: 22px;
+    height: 22px;
+    transition: all 0.2s ease;
+}
+
+/* 收藏按钮激活状态 */
+.favorite-btn.active .favorite-icon {
+    fill: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* 空结果状态 */
+.results-empty {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    color: var(--gray-500);
+    display: none; /* 默认隐藏 */
+}
+
+.results-empty-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto var(--spacing-md);
+    opacity: 0.7;
+} 

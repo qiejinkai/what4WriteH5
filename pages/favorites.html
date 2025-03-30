@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的收藏 - 今天写什么</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/favorites.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="logo">
+                <img src="../images/icons/logo.svg" alt="Logo" class="logo-img">
+                <h1 class="logo-text">我的收藏</h1>
+            </div>
+            <div class="export-button" id="exportBtn">
+                <img src="../images/icons/export.svg" alt="导出" class="export-icon">
+            </div>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main class="main-content">
+            <!-- 空收藏状态 -->
+            <div class="empty-state" id="emptyState">
+                <img src="../images/icons/empty-star.svg" alt="空收藏" class="empty-icon">
+                <h3 class="empty-title">还没有收藏内容</h3>
+                <p class="empty-desc">浏览热点话题并收藏感兴趣的内容</p>
+                <button class="go-home-btn" id="goHomeBtn">去浏览热点</button>
+            </div>
+
+            <!-- 收藏列表 -->
+            <section class="favorites-list" id="favoritesList">
+                <!-- 收藏项目将通过JS动态添加 -->
+            </section>
+
+            <!-- 收藏项目模板 -->
+            <template id="favoriteItemTemplate">
+                <div class="favorite-item">
+                    <div class="favorite-content">
+                        <div class="favorite-track"></div>
+                        <h3 class="favorite-title"></h3>
+                        <p class="favorite-desc"></p>
+                    </div>
+                    <div class="favorite-actions">
+                        <button class="remove-btn">
+                            <img src="../images/icons/trash.svg" alt="删除" class="remove-icon">
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </main>
+
+        <!-- 底部导航 -->
+        <footer class="footer">
+            <div class="nav-item" data-page="home">
+                <img src="../images/icons/home.svg" alt="首页" class="nav-icon">
+                <span class="nav-text">首页</span>
+            </div>
+            <div class="nav-item active" data-page="favorites">
+                <img src="../images/icons/star.svg" alt="收藏" class="nav-icon">
+                <span class="nav-text">我的收藏</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../utils/api.js"></script>
+    <script src="../utils/common.js"></script>
+    <script src="../pages/favorites.js"></script>
+</body>
+</html> 
