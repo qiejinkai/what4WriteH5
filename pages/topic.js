@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 初始化收藏功能
     initFavoriteFeature();
+    
+    // 自动加载话题列表
+    loadTopics();
 });
 
 /**
@@ -45,33 +48,42 @@ function updateTrackTitle(trackId) {
 }
 
 /**
+ * 加载话题列表
+ */
+function loadTopics() {
+    const resultsLoading = document.getElementById('resultsLoading');
+    const resultsList = document.getElementById('resultsList');
+    
+    // 显示加载状态
+    DOMUtils.show(resultsLoading);
+    resultsList.innerHTML = ''; // 清空之前的结果
+    
+    // 调用API获取话题数据
+    API.getTopicsByTrack(currentTrackId)
+        .then(topics => {
+            // 隐藏加载状态
+            DOMUtils.hide(resultsLoading);
+            
+            // 渲染话题列表
+            renderTopicList(topics);
+        })
+        .catch(error => {
+            console.error('获取话题失败:', error);
+            DOMUtils.hide(resultsLoading);
+            resultsList.innerHTML = '<div class="error-message">获取话题失败，请重试</div>';
+        });
+}
+
+/**
  * 初始化生成按钮事件
  */
 function initGenerateButton() {
     const generateBtn = document.getElementById('generateBtn');
-    const resultsLoading = document.getElementById('resultsLoading');
-    const resultsList = document.getElementById('resultsList');
     
     if (generateBtn) {
         generateBtn.addEventListener('click', () => {
-            // 显示加载状态
-            DOMUtils.show(resultsLoading);
-            resultsList.innerHTML = ''; // 清空之前的结果
-            
-            // 调用API获取话题数据
-            API.getTopicsByTrack(currentTrackId)
-                .then(topics => {
-                    // 隐藏加载状态
-                    DOMUtils.hide(resultsLoading);
-                    
-                    // 渲染话题列表
-                    renderTopicList(topics);
-                })
-                .catch(error => {
-                    console.error('获取话题失败:', error);
-                    DOMUtils.hide(resultsLoading);
-                    resultsList.innerHTML = '<div class="error-message">获取话题失败，请重试</div>';
-                });
+            // 加载话题
+            loadTopics();
         });
     }
 }

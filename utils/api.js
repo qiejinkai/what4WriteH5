@@ -287,15 +287,134 @@ function getTracks() {
  * @returns {Promise} 返回该赛道的话题列表
  */
 function getTopicsByTrack(trackId) {
-    return new Promise((resolve, reject) => {
-        // 模拟网络请求延迟
-        setTimeout(() => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // 显示加载状态
+            const appKey = getAppKey();
+            
+            if (!appKey) {
+                // 如果没有设置appKey，使用模拟数据
+                setTimeout(() => {
+                    if (topicData[trackId]) {
+                        resolve(topicData[trackId]);
+                    } else {
+                        reject(new Error('赛道不存在'));
+                    }
+                }, 1500);
+                return;
+            }
+            
+            // 构建提示词
+            const trackNameMap = {
+                'tech': '科技',
+                'finance': '财经',
+                'entertainment': '娱乐',
+                'education': '教育',
+                'health': '健康',
+                'lifestyle': '生活方式',
+                'parenting': '母婴育儿',
+                'wellness': '健康养生'
+            };
+            
+            const trackName = trackNameMap[trackId] || trackId;
+            const prompt = `请为${trackName}领域生成10个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "id": "字符串ID",// 使用UUID生成
+      "title": "话题标题",
+      "description": "详细描述"
+    },
+    ...
+  ]
+}
+生成的话题要有创意、新颖、符合${trackName}领域的最新趋势，适合新媒体内容创作。`;
+
+            // 调用DeepSeek-R1模型API
+            const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${appKey}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    model: "deepseek-r1",
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt,
+                        },
+                    ],
+                    stream: false, // 不使用流式输出
+                }),
+            });
+
+            // 处理响应
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API调用失败:', errorText);
+                throw new Error(`API调用失败: ${response.status} ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            // 检查返回的数据格式
+            if (result.choices && result.choices[0] && result.choices[0].message) {
+                try {
+                    // 尝试解析返回的内容为JSON
+                    const content = result.choices[0].message.content;
+                    // 尝试查找JSON部分
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    const jsonString = jsonMatch ? jsonMatch[0] : content;
+                    const data = JSON.parse(jsonString);
+                    
+                    if (data.data && Array.isArray(data.data)) {
+                        // 确保每个话题都有id
+                        data.data.forEach((item, index) => {
+                            if (!item.id) {
+                                item.id = `${trackId}_${index}`;
+                            }
+                        });
+                        resolve(data.data);
+                    } else {
+                        // 格式不符合预期，使用模拟数据
+                        console.error('API返回格式不符合预期:', data);
+                        if (topicData[trackId]) {
+                            resolve(topicData[trackId]);
+                        } else {
+                            reject(new Error('赛道不存在'));
+                        }
+                    }
+                } catch (e) {
+                    console.error('解析API返回内容失败:', e, result.choices[0].message.content);
+                    // 解析失败，使用模拟数据
+                    if (topicData[trackId]) {
+                        resolve(topicData[trackId]);
+                    } else {
+                        reject(new Error('赛道不存在'));
+                    }
+                }
+            } else {
+                // 响应结构不符合预期，使用模拟数据
+                console.error('API响应结构不符合预期:', result);
+                if (topicData[trackId]) {
+                    resolve(topicData[trackId]);
+                } else {
+                    reject(new Error('赛道不存在'));
+                }
+            }
+        } catch (error) {
+            console.error('获取话题失败:', error);
+            // 出现异常时使用模拟数据
             if (topicData[trackId]) {
                 resolve(topicData[trackId]);
             } else {
-                reject(new Error('赛道不存在'));
+                reject(new Error('赛道不存在或API调用失败'));
             }
-        }, 1500); // 故意设置较长的延迟，以展示加载效果
+        }
     });
 }
 

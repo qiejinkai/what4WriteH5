@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initTrackSelection();
     // 初始化设置按钮
     initSettingsButton();
+    // 检查ApiKey
+    checkApiKey();
 });
 
 /**
@@ -40,5 +42,25 @@ function initSettingsButton() {
             // 跳转到设置页面
             Navigation.goToPage('settings');
         });
+    }
+    
+    // 设置"去设置"按钮
+    const goToSettingsBtn = document.getElementById('goToSettings');
+    if (goToSettingsBtn) {
+        goToSettingsBtn.addEventListener('click', () => {
+            Navigation.goToPage('settings');
+        });
+    }
+}
+
+/**
+ * 检查ApiKey是否设置
+ */
+function checkApiKey() {
+    const appKey = API.getAppKey();
+    const appKeyTip = document.getElementById('appKeyTip');
+    
+    if (!appKey && appKeyTip) {
+        appKeyTip.style.display = 'block';
     }
 } 

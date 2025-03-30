@@ -15,8 +15,37 @@
 }
 
 .subtitle {
+    font-size: 0.9rem;
     color: var(--gray-600);
-    font-size: 1rem;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+/* AppKey提示样式 */
+.app-key-tip {
+    margin-bottom: var(--spacing-lg);
+}
+
+.tip-card {
+    background-color: var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tip-text {
+    color: var(--gray-700);
+    font-size: 0.9rem;
+    flex: 1;
+    margin-right: var(--spacing-md);
+}
+
+.btn-sm {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.85rem;
+    border-radius: 20px;
 }
 
 /* 赛道选择区域 */
