@@ -428,7 +428,7 @@ function showPromptModal(topic, trackName) {
 赛道：${trackName}。
 风格：语言风格口语化，消除AI生成痕迹。
 内容：内容深刻，发人深省，有另辟蹊径的观点更好。
-数据：多引用真实兰礼盒科学数据分析，并在文末标明引用出处。
+数据：多引用真实案例和科学数据分析，并在文末标明引用出处。
 主题：${topic.title}。
 描述：${topic.description}`;
     
