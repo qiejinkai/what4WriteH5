@@ -807,7 +807,7 @@ function getCustomTopics(trackId, keyword, customPrompt) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    model: "qwen-max", // 使用千问大模型
+                    model: "qwen-plus", // 使用千问大模型
                     messages: [
                         {
                             role: "system",
