@@ -37,14 +37,16 @@
     background-color: var(--primary-color);
     color: white;
     border-radius: 30px;
-    padding: var(--spacing-md) var(--spacing-xl);
-    font-size: 1rem;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 0.95rem;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
     box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+    white-space: nowrap;
+    min-width: 120px;
 }
 
 .generate-button:active {
@@ -53,8 +55,108 @@
 }
 
 .generate-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    margin-right: var(--spacing-sm);
+}
+
+/* 分割线 */
+.generate-divider {
+    margin: var(--spacing-xl) 0;
+    position: relative;
+    text-align: center;
+}
+
+.generate-divider::before,
+.generate-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: var(--gray-300);
+}
+
+.generate-divider::before {
+    left: 0;
+}
+
+.generate-divider::after {
+    right: 0;
+}
+
+.generate-divider span {
+    display: inline-block;
+    padding: 0 var(--spacing-sm);
+    background-color: white;
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* 自定义话题输入 */
+.custom-topic-input {
+    display: flex;
+    gap: var(--spacing-sm);
+    width: 100%;
+    margin-top: var(--spacing-lg);
+    align-items: center;
+}
+
+.topic-input {
+    border: 1px solid var(--gray-300);
+    border-radius: 30px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 0.95rem;
+    color: var(--gray-800);
+    flex: 1;
+    transition: border-color 0.2s;
+}
+
+.topic-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.topic-input::placeholder {
+    color: var(--gray-500);
+}
+
+.topic-input.error {
+    border-color: var(--error-color);
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.custom-topic-button {
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 30px;
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(245, 166, 35, 0.3);
+}
+
+.custom-topic-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 5px rgba(245, 166, 35, 0.2);
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
     margin-right: var(--spacing-sm);
 }
 

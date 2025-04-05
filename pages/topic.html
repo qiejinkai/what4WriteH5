@@ -24,12 +24,16 @@
             <!-- 生成按钮区域 -->
             <section class="generate-section">
                 <div class="generate-card">
-                    <h2 class="generate-title">点击生成今日热点话题</h2>
+                    <h2 class="generate-title">搜索热点话题</h2>
                     <p class="generate-desc">为您提供最新最热的<span id="trackName">科技</span>领域话题</p>
-                    <button id="generateBtn" class="generate-button">
-                        <img src="../images/icons/magic.svg" alt="生成" class="generate-icon">
-                        <span>一键生成</span>
-                    </button>
+                    
+                    <div class="custom-topic-input">
+                        <input type="text" id="customTopicInput" placeholder="输入感兴趣的话题关键词" class="topic-input">
+                        <button id="generateBtn" class="generate-button">
+                            <img src="../images/icons/magic.svg" alt="生成" class="generate-icon">
+                            <span>生成话题</span>
+                        </button>
+                    </div>
                 </div>
             </section>
 

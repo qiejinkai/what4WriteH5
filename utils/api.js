@@ -702,6 +702,344 @@ function getAppKey() {
     return localStorage.getItem('app_key') || '';
 }
 
+/**
+ * 根据用户输入的关键词生成自定义话题
+ * @param {string} trackId 赛道ID
+ * @param {string} keyword 用户输入的关键词
+ * @param {string} customPrompt 自定义提示词
+ * @returns {Promise} 返回生成的话题列表
+ */
+function getCustomTopics(trackId, keyword, customPrompt) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // 显示加载状态
+            const appKey = getAppKey();
+            
+            if (!appKey) {
+                // 如果没有设置appKey，使用模拟数据
+                setTimeout(() => {
+                    if (window.dispatchEvent) {
+                        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                            detail: { 
+                                phase: 'connecting',
+                                progress: 0.3,
+                                trackId
+                            }
+                        }));
+                    }
+                }, 500);
+                
+                setTimeout(() => {
+                    if (window.dispatchEvent) {
+                        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                            detail: { 
+                                phase: 'generating',
+                                progress: 0.6,
+                                trackId
+                            }
+                        }));
+                    }
+                }, 1000);
+                
+                // 模拟数据，根据关键词生成
+                setTimeout(() => {
+                    // 为关键词创建模拟数据
+                    const simulatedTopics = [
+                        {
+                            id: `custom_${Date.now()}_1`,
+                            title: `${keyword}领域最新发展趋势`,
+                            description: `探索${keyword}领域的最新发展动态，分析未来发展方向和潜在机会。`
+                        },
+                        {
+                            id: `custom_${Date.now()}_2`,
+                            title: `如何在${keyword}领域建立个人品牌`,
+                            description: `分享在${keyword}领域建立个人影响力的策略和方法，从零开始打造专业形象。`
+                        },
+                        {
+                            id: `custom_${Date.now()}_3`,
+                            title: `${keyword}领域的5个创新案例分析`,
+                            description: `深度解析${keyword}领域最具创新性的案例，探讨其成功因素和启示。`
+                        },
+                        {
+                            id: `custom_${Date.now()}_4`,
+                            title: `${keyword}与人工智能的结合点`,
+                            description: `探讨${keyword}领域如何与AI技术结合，创造新的产品和服务模式。`
+                        },
+                        {
+                            id: `custom_${Date.now()}_5`,
+                            title: `${keyword}领域从业者必备的5项技能`,
+                            description: `梳理在${keyword}领域取得成功所需的核心能力和知识体系。`
+                        }
+                    ];
+                    
+                    if (window.dispatchEvent) {
+                        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                            detail: { 
+                                phase: 'completed',
+                                progress: 1.0,
+                                trackId
+                            }
+                        }));
+                    }
+                    resolve(simulatedTopics);
+                }, 1500);
+                return;
+            }
+            
+            // 通知UI进入连接阶段
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'connecting',
+                        progress: 0.1,
+                        message: '正在连接千问AI服务...',
+                        trackId
+                    }
+                }));
+            }
+
+            // 调用千问(Qwen-Plus)大模型API
+            const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${appKey}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    model: "qwen-max", // 使用千问大模型
+                    messages: [
+                        {
+                            role: "system",
+                            content: `你是一个专业的新媒体内容创作助手，擅长根据用户提供的关键词生成热门话题建议。请关注${keyword}相关的热点内容，用JSON格式返回结果，不要添加任何额外的解释文本。`,
+                        },
+                        {
+                            role: "user",
+                            content: customPrompt,
+                        },
+                    ],
+                    enable_search: true, // 启用搜索功能，获取更新数据
+                    search_options: {
+                        "forced_search": true,     
+                        "search_strategy": "pro"
+                    },
+                    tool_choice: "auto"
+                }),
+            });
+
+            // 通知UI进入生成阶段
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'generating',
+                        progress: 0.5,
+                        message: '正在生成话题内容...',
+                        trackId
+                    }
+                }));
+            }
+
+            // 处理响应
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('千问API调用失败:', errorText);
+                throw new Error(`千问API调用失败: ${response.status} ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            // 通知UI进入格式化阶段
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'formatting',
+                        progress: 0.8,
+                        message: '整理千问返回的数据...',
+                        trackId
+                    }
+                }));
+            }
+            
+            // 检查返回的数据格式
+            if (result.choices && result.choices[0] && result.choices[0].message) {
+                try {
+                    // 尝试解析返回的内容为JSON
+                    const content = result.choices[0].message.content;
+                    // 尝试查找JSON部分
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    const jsonString = jsonMatch ? jsonMatch[0] : content;
+                    const data = JSON.parse(jsonString);
+                    
+                    if (data.data && Array.isArray(data.data)) {
+                        // 确保每个话题都有id
+                        data.data.forEach((item, index) => {
+                            if (!item.id) {
+                                item.id = `${keyword}_${index}_${Date.now()}`;
+                            }
+                        });
+                        
+                        // 通知UI加载完成
+                        if (window.dispatchEvent) {
+                            window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                                detail: { 
+                                    phase: 'completed',
+                                    progress: 1.0,
+                                    message: '千问数据加载完成',
+                                    trackId
+                                }
+                            }));
+                        }
+                        
+                        resolve(data.data);
+                    } else {
+                        console.error('千问API返回格式不符合预期:', data);
+                        // 尝试处理不同的返回格式
+                        if (data && typeof data === 'object') {
+                            // 尝试从其他可能的结构中提取数据
+                            let extractedData = [];
+                            
+                            // 如果有直接的数组
+                            if (Array.isArray(data)) {
+                                extractedData = data.map((item, index) => {
+                                    return {
+                                        id: `${keyword}_${index}_${Date.now()}`,
+                                        title: item.title || item.name || `话题${index+1}`,
+                                        description: item.description || item.content || item.desc || '暂无描述'
+                                    };
+                                });
+                            } 
+                            // 如果数据包含在其他字段中
+                            else if (data.topics || data.items || data.list || data.result) {
+                                const dataArray = data.topics || data.items || data.list || data.result;
+                                if (Array.isArray(dataArray)) {
+                                    extractedData = dataArray.map((item, index) => {
+                                        return {
+                                            id: `${keyword}_${index}_${Date.now()}`,
+                                            title: item.title || item.name || `话题${index+1}`,
+                                            description: item.description || item.content || item.desc || '暂无描述'
+                                        };
+                                    });
+                                }
+                            }
+                            
+                            if (extractedData.length > 0) {
+                                resolve(extractedData);
+                                return;
+                            }
+                        }
+                        
+                        // 如果无法提取数据，使用模拟数据
+                        const simulatedTopics = [
+                            {
+                                id: `custom_${Date.now()}_1`,
+                                title: `${keyword}领域最新发展趋势`,
+                                description: `探索${keyword}领域的最新发展动态，分析未来发展方向和潜在机会。`
+                            },
+                            {
+                                id: `custom_${Date.now()}_2`,
+                                title: `如何在${keyword}领域建立个人品牌`,
+                                description: `分享在${keyword}领域建立个人影响力的策略和方法，从零开始打造专业形象。`
+                            },
+                            {
+                                id: `custom_${Date.now()}_3`,
+                                title: `${keyword}领域的5个创新案例分析`,
+                                description: `深度解析${keyword}领域最具创新性的案例，探讨其成功因素和启示。`
+                            }
+                        ];
+                        resolve(simulatedTopics);
+                    }
+                } catch (e) {
+                    console.error('解析千问API返回内容失败:', e, result.choices[0].message.content);
+                    // 解析失败，使用模拟数据
+                    const simulatedTopics = [
+                        {
+                            id: `custom_${Date.now()}_1`,
+                            title: `${keyword}领域最新发展趋势`,
+                            description: `探索${keyword}领域的最新发展动态，分析未来发展方向和潜在机会。`
+                        },
+                        {
+                            id: `custom_${Date.now()}_2`,
+                            title: `如何在${keyword}领域建立个人品牌`,
+                            description: `分享在${keyword}领域建立个人影响力的策略和方法，从零开始打造专业形象。`
+                        }
+                    ];
+                    resolve(simulatedTopics);
+                }
+            } else {
+                // 响应结构不符合预期，使用模拟数据
+                console.error('千问API响应结构不符合预期:', result);
+                const simulatedTopics = [
+                    {
+                        id: `custom_${Date.now()}_1`,
+                        title: `${keyword}领域最新发展趋势`,
+                        description: `探索${keyword}领域的最新发展动态，分析未来发展方向和潜在机会。`
+                    }
+                ];
+                resolve(simulatedTopics);
+            }
+        } catch (error) {
+            console.error('获取自定义话题失败:', error);
+            
+            // 通知UI发生错误
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'error',
+                        progress: 0,
+                        message: `千问API调用出错: ${error.message}`,
+                        trackId
+                    }
+                }));
+            }
+            
+            // 等待一会再使用模拟数据，让用户看到错误信息
+            setTimeout(() => {
+                // 通知UI将使用模拟数据
+                if (window.dispatchEvent) {
+                    window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                        detail: { 
+                            phase: 'fallback',
+                            progress: 0.5,
+                            message: '使用预设数据',
+                            trackId
+                        }
+                    }));
+                }
+                
+                // 出现异常时使用模拟数据
+                const simulatedTopics = [
+                    {
+                        id: `custom_${Date.now()}_1`,
+                        title: `${keyword}领域最新发展趋势`,
+                        description: `探索${keyword}领域的最新发展动态，分析未来发展方向和潜在机会。`
+                    },
+                    {
+                        id: `custom_${Date.now()}_2`,
+                        title: `如何在${keyword}领域建立个人品牌`,
+                        description: `分享在${keyword}领域建立个人影响力的策略和方法，从零开始打造专业形象。`
+                    }
+                ];
+                
+                setTimeout(() => {
+                    // 通知UI完成
+                    if (window.dispatchEvent) {
+                        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                            detail: { 
+                                phase: 'completed',
+                                progress: 1.0,
+                                message: '已加载预设数据',
+                                trackId
+                            }
+                        }));
+                    }
+                    
+                    resolve(simulatedTopics);
+                }, 1000);
+            }, 1500);
+        }
+    });
+}
+
 // 导出API函数
 window.API = {
     getTracks,
@@ -710,5 +1048,6 @@ window.API = {
     addToFavorites,
     removeFromFavorites,
     exportFavoritesAsText,
-    getAppKey
+    getAppKey,
+    getCustomTopics
 }; 

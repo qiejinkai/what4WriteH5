@@ -27,14 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化API加载进度监听
     initApiLoadingProgressListener();
     
+    // 初始化自定义话题输入
+    initCustomTopicInput();
+    
     // 初始隐藏加载提示
     const resultsLoading = document.getElementById('resultsLoading');
     if (resultsLoading) {
         resultsLoading.style.display = 'none';
     }
     
-    // 自动加载话题列表
-    loadTopics();
+    // 将赛道名称填入输入框
+    fillTrackIntoInput();
 });
 
 /**
@@ -227,17 +230,124 @@ function completeLoadingProgress() {
 }
 
 /**
- * 加载话题列表
+ * 将首页选择的赛道名称填入输入框
  */
-function loadTopics() {
-    // 开始显示加载进度
+function fillTrackIntoInput() {
+    const trackNameMap = {
+        'tech': '科技',
+        'finance': '财经',
+        'entertainment': '娱乐',
+        'education': '教育',
+        'health': '健康',
+        'lifestyle': '生活方式',
+        'parenting': '母婴育儿',
+        'wellness': '健康养生'
+    };
+    
+    const trackName = trackNameMap[currentTrackId] || currentTrackId;
+    const customTopicInput = document.getElementById('customTopicInput');
+    
+    if (customTopicInput) {
+        // 将赛道名称填入输入框
+        customTopicInput.value = trackName;
+        
+        // 自动获取焦点并选中文本
+        setTimeout(() => {
+            customTopicInput.focus();
+            customTopicInput.select();
+        }, 500);
+    }
+}
+
+/**
+ * 初始化生成按钮事件
+ */
+function initGenerateButton() {
+    const generateBtn = document.getElementById('generateBtn');
+    const customTopicInput = document.getElementById('customTopicInput');
+    
+    if (generateBtn && customTopicInput) {
+        // 点击按钮处理
+        generateBtn.addEventListener('click', () => {
+            handleTopicGeneration();
+        });
+        
+        // 输入框回车键处理
+        customTopicInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleTopicGeneration();
+            }
+        });
+    }
+}
+
+/**
+ * 处理话题生成
+ */
+function handleTopicGeneration() {
+    const customTopicInput = document.getElementById('customTopicInput');
+    const keyword = customTopicInput ? customTopicInput.value.trim() : '';
+    
+    // 如果输入框为空，则使用当前赛道生成话题
+    if (!keyword) {
+        // 显示默认赛道的提示文字
+        if (customTopicInput) {
+            customTopicInput.placeholder = '请输入关键词后再生成';
+            customTopicInput.classList.add('error');
+            
+            // 2秒后恢复原状
+            setTimeout(() => {
+                customTopicInput.placeholder = '输入感兴趣的话题关键词';
+                customTopicInput.classList.remove('error');
+            }, 2000);
+        }
+        return;
+    }
+    
+    // 开始显示加载状态
     startLoadingProgress();
     
-    // 调用API获取话题数据
-    API.getTopicsByTrack(currentTrackId)
+    // 构造提示词，包含用户的关键词
+    const prompt = `请为${keyword}相关领域生成10个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "id": "字符串ID",
+      "title": "话题标题",
+      "description": "详细描述"
+    },
+    ...
+  ]
+}
+id使用title的md5值。
+首先搜索全网${keyword}的最新热点话题，然后根据搜索结果生成话题，确保话题的时效性和传播性。
+生成的话题要有创意、新颖、符合${keyword}领域的最新趋势，适合新媒体内容创作。必须返回JSON格式，不要添加任何解释和其他文本。`;
+
+    // 通知UI进入连接阶段
+    if (window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+            detail: { 
+                phase: 'connecting',
+                progress: 0.1,
+                message: '正在连接千问AI服务...',
+                trackId: currentTrackId
+            }
+        }));
+    }
+    
+    // 使用API工具生成相关话题
+    API.getCustomTopics(currentTrackId, keyword, prompt)
         .then(topics => {
             // 完成加载进度
             completeLoadingProgress();
+            
+            // 更新结果标题，显示是关于什么的话题
+            const resultsTitle = document.getElementById('resultsTitle');
+            if (resultsTitle) {
+                resultsTitle.textContent = `关于"${keyword}"的热点话题`;
+            }
             
             // 渲染话题列表
             renderTopicList(topics);
@@ -260,7 +370,7 @@ function loadTopics() {
                 const retryButton = document.getElementById('retryButton');
                 if (retryButton) {
                     retryButton.addEventListener('click', () => {
-                        loadTopics();
+                        handleTopicGeneration();
                     });
                 }
             }
@@ -268,17 +378,246 @@ function loadTopics() {
 }
 
 /**
- * 初始化生成按钮事件
+ * 初始化收藏功能
  */
-function initGenerateButton() {
-    const generateBtn = document.getElementById('generateBtn');
+function initFavoriteFeature() {
+    // 加载已收藏的话题，用于设置正确的收藏按钮状态
+    API.getFavorites().then(favorites => {
+        // 存储收藏的话题ID，用于快速查找
+        window.favoritedTopicIds = favorites.map(item => item.id);
+    });
+}
+
+/**
+ * 切换收藏状态
+ * @param {HTMLElement} button 收藏按钮
+ * @param {Object} topic 话题数据
+ */
+function toggleFavorite(button, topic) {
+    const isFavorited = button.classList.contains('active');
+    const iconImg = button.querySelector('.favorite-icon');
     
-    if (generateBtn) {
-        generateBtn.addEventListener('click', () => {
-            // 加载话题
-            loadTopics();
+    if (isFavorited) {
+        // 取消收藏
+        API.removeFromFavorites(topic.id).then(() => {
+            button.classList.remove('active');
+            iconImg.src = '../images/icons/star-outline.svg';
+            
+            // 更新收藏ID列表
+            const index = window.favoritedTopicIds.indexOf(topic.id);
+            if (index > -1) {
+                window.favoritedTopicIds.splice(index, 1);
+            }
+        });
+    } else {
+        // 添加收藏
+        API.addToFavorites(topic, currentTrackId).then(() => {
+            button.classList.add('active');
+            iconImg.src = '../images/icons/star-filled.svg';
+            
+            // 更新收藏ID列表
+            if (!window.favoritedTopicIds.includes(topic.id)) {
+                window.favoritedTopicIds.push(topic.id);
+            }
         });
     }
+}
+
+/**
+ * 初始化API加载进度监听器
+ */
+function initApiLoadingProgressListener() {
+    window.addEventListener('api-loading-progress', (event) => {
+        const { phase, progress, message, trackId } = event.detail;
+        
+        // 确保是当前赛道的进度更新
+        if (trackId === currentTrackId) {
+            updateLoadingUI(phase, progress, message);
+        }
+    });
+}
+
+/**
+ * 根据API加载阶段更新UI
+ * @param {string} phase 加载阶段
+ * @param {number} progress 进度值(0-1)
+ * @param {string} message 可选的消息
+ */
+function updateLoadingUI(phase, progress, message) {
+    const loadingBarProgress = document.getElementById('loadingBarProgress');
+    if (loadingBarProgress) {
+        loadingBarProgress.style.width = `${progress * 100}%`;
+    }
+    
+    // 重置所有步骤状态
+    resetLoadingSteps();
+    
+    // 根据阶段高亮对应步骤
+    switch (phase) {
+        case 'connecting':
+            const stepConnecting = document.getElementById('stepConnecting');
+            if (stepConnecting) {
+                stepConnecting.classList.add('active');
+                if (message) stepConnecting.textContent = message;
+            }
+            break;
+        case 'generating':
+            const stepGenerating = document.getElementById('stepGenerating');
+            if (stepGenerating) {
+                stepGenerating.classList.add('active');
+                if (message) stepGenerating.textContent = message;
+            }
+            break;
+        case 'formatting':
+            const stepFormatting = document.getElementById('stepFormatting');
+            if (stepFormatting) {
+                stepFormatting.classList.add('active');
+                if (message) stepFormatting.textContent = message;
+            }
+            break;
+        case 'error':
+            // 显示错误信息
+            const stepError = document.getElementById('stepConnecting');
+            if (stepError) {
+                stepError.classList.add('active', 'error');
+                if (message) stepError.textContent = message || '发生错误';
+            }
+            break;
+        case 'fallback':
+            // 显示回退到模拟数据状态
+            const stepFallback = document.getElementById('stepGenerating');
+            if (stepFallback) {
+                stepFallback.classList.add('active', 'warning');
+                if (message) stepFallback.textContent = message || '使用预设数据';
+            }
+            break;
+        case 'completed':
+            // 完成加载，延迟一会再隐藏
+            setTimeout(() => {
+                stopLoadingProgress();
+            }, 500);
+            break;
+    }
+}
+
+/**
+ * 初始化自定义话题输入
+ */
+function initCustomTopicInput() {
+    const customTopicBtn = document.getElementById('customTopicBtn');
+    const customTopicInput = document.getElementById('customTopicInput');
+    
+    if (customTopicBtn && customTopicInput) {
+        // 点击按钮时处理
+        customTopicBtn.addEventListener('click', () => {
+            handleCustomTopic();
+        });
+        
+        // 按下回车键时处理
+        customTopicInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleCustomTopic();
+            }
+        });
+    }
+}
+
+/**
+ * 处理自定义话题输入
+ */
+function handleCustomTopic() {
+    const customTopicInput = document.getElementById('customTopicInput');
+    const keyword = customTopicInput.value.trim();
+    
+    if (!keyword) {
+        // 如果输入为空，显示提示并返回
+        customTopicInput.placeholder = '请输入关键词后再生成';
+        customTopicInput.classList.add('error');
+        
+        // 2秒后恢复原状
+        setTimeout(() => {
+            customTopicInput.placeholder = '输入感兴趣的话题关键词';
+            customTopicInput.classList.remove('error');
+        }, 2000);
+        
+        return;
+    }
+    
+    // 开始显示加载状态
+    startLoadingProgress();
+    
+    // 清空输入框
+    customTopicInput.value = '';
+    
+    // 构造提示词，包含用户的关键词
+    const prompt = `请为${keyword}相关领域生成10个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "id": "字符串ID",
+      "title": "话题标题",
+      "description": "详细描述"
+    },
+    ...
+  ]
+}
+id使用title的md5值。
+首先搜索全网${keyword}的最新热点话题，然后根据搜索结果生成话题，确保话题的时效性和传播性。
+生成的话题要有创意、新颖、符合${keyword}领域的最新趋势，适合新媒体内容创作。必须返回JSON格式，不要添加任何解释和其他文本。`;
+
+    // 通知UI进入连接阶段
+    if (window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('api-loading-progress', {
+            detail: { 
+                phase: 'connecting',
+                progress: 0.1,
+                message: '正在连接千问AI服务...',
+                trackId: currentTrackId
+            }
+        }));
+    }
+    
+    // 使用API工具生成相关话题
+    // 这里我们调用现有的getTopicsByTrack方法，但传入特殊参数custom_prompt
+    API.getCustomTopics(currentTrackId, keyword, prompt)
+        .then(topics => {
+            // 完成加载进度
+            completeLoadingProgress();
+            
+            // 更新结果标题，显示是关于什么的话题
+            const resultsTitle = document.getElementById('resultsTitle');
+            if (resultsTitle) {
+                resultsTitle.textContent = `关于"${keyword}"的热点话题`;
+            }
+            
+            // 渲染话题列表
+            renderTopicList(topics);
+        })
+        .catch(error => {
+            console.error('获取自定义话题失败:', error);
+            stopLoadingProgress();
+            
+            const resultsList = document.getElementById('resultsList');
+            if (resultsList) {
+                resultsList.innerHTML = `
+                    <div class="error-message">
+                        <p>获取话题失败: ${error.message || '未知错误'}</p>
+                        <p>请检查您的网络连接和API密钥设置，然后重试</p>
+                        <button id="retryButton" class="btn">重新尝试</button>
+                    </div>
+                `;
+                
+                // 添加重试按钮事件
+                const retryButton = document.getElementById('retryButton');
+                if (retryButton) {
+                    retryButton.addEventListener('click', () => {
+                        handleCustomTopic();
+                    });
+                }
+            }
+        });
 }
 
 /**
@@ -442,127 +781,4 @@ function showPromptModal(topic, trackName) {
     const copyBtn = document.getElementById('copyPromptBtn');
     copyBtn.classList.remove('success');
     copyBtn.textContent = '复制提示词';
-}
-
-/**
- * 初始化收藏功能
- */
-function initFavoriteFeature() {
-    // 加载已收藏的话题，用于设置正确的收藏按钮状态
-    API.getFavorites().then(favorites => {
-        // 存储收藏的话题ID，用于快速查找
-        window.favoritedTopicIds = favorites.map(item => item.id);
-    });
-}
-
-/**
- * 切换收藏状态
- * @param {HTMLElement} button 收藏按钮
- * @param {Object} topic 话题数据
- */
-function toggleFavorite(button, topic) {
-    const isFavorited = button.classList.contains('active');
-    const iconImg = button.querySelector('.favorite-icon');
-    
-    if (isFavorited) {
-        // 取消收藏
-        API.removeFromFavorites(topic.id).then(() => {
-            button.classList.remove('active');
-            iconImg.src = '../images/icons/star-outline.svg';
-            
-            // 更新收藏ID列表
-            const index = window.favoritedTopicIds.indexOf(topic.id);
-            if (index > -1) {
-                window.favoritedTopicIds.splice(index, 1);
-            }
-        });
-    } else {
-        // 添加收藏
-        API.addToFavorites(topic, currentTrackId).then(() => {
-            button.classList.add('active');
-            iconImg.src = '../images/icons/star-filled.svg';
-            
-            // 更新收藏ID列表
-            if (!window.favoritedTopicIds.includes(topic.id)) {
-                window.favoritedTopicIds.push(topic.id);
-            }
-        });
-    }
-}
-
-/**
- * 初始化API加载进度监听器
- */
-function initApiLoadingProgressListener() {
-    window.addEventListener('api-loading-progress', (event) => {
-        const { phase, progress, message, trackId } = event.detail;
-        
-        // 确保是当前赛道的进度更新
-        if (trackId === currentTrackId) {
-            updateLoadingUI(phase, progress, message);
-        }
-    });
-}
-
-/**
- * 根据API加载阶段更新UI
- * @param {string} phase 加载阶段
- * @param {number} progress 进度值(0-1)
- * @param {string} message 可选的消息
- */
-function updateLoadingUI(phase, progress, message) {
-    const loadingBarProgress = document.getElementById('loadingBarProgress');
-    if (loadingBarProgress) {
-        loadingBarProgress.style.width = `${progress * 100}%`;
-    }
-    
-    // 重置所有步骤状态
-    resetLoadingSteps();
-    
-    // 根据阶段高亮对应步骤
-    switch (phase) {
-        case 'connecting':
-            const stepConnecting = document.getElementById('stepConnecting');
-            if (stepConnecting) {
-                stepConnecting.classList.add('active');
-                if (message) stepConnecting.textContent = message;
-            }
-            break;
-        case 'generating':
-            const stepGenerating = document.getElementById('stepGenerating');
-            if (stepGenerating) {
-                stepGenerating.classList.add('active');
-                if (message) stepGenerating.textContent = message;
-            }
-            break;
-        case 'formatting':
-            const stepFormatting = document.getElementById('stepFormatting');
-            if (stepFormatting) {
-                stepFormatting.classList.add('active');
-                if (message) stepFormatting.textContent = message;
-            }
-            break;
-        case 'error':
-            // 显示错误信息
-            const stepError = document.getElementById('stepConnecting');
-            if (stepError) {
-                stepError.classList.add('active', 'error');
-                if (message) stepError.textContent = message || '发生错误';
-            }
-            break;
-        case 'fallback':
-            // 显示回退到模拟数据状态
-            const stepFallback = document.getElementById('stepGenerating');
-            if (stepFallback) {
-                stepFallback.classList.add('active', 'warning');
-                if (message) stepFallback.textContent = message || '使用预设数据';
-            }
-            break;
-        case 'completed':
-            // 完成加载，延迟一会再隐藏
-            setTimeout(() => {
-                stopLoadingProgress();
-            }, 500);
-            break;
-    }
 } 
