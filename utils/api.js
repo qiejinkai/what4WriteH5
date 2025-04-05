@@ -352,7 +352,7 @@ function getTopicsByTrack(trackId) {
             };
             
             const trackName = trackNameMap[trackId] || trackId;
-            const prompt = `请为${trackName}领域生成10个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
+            const prompt = `请为${trackName}相关领域生成10个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
 {
   "code": 0,
   "message": "success",
@@ -366,8 +366,8 @@ function getTopicsByTrack(trackId) {
   ]
 }
 id使用title的md5值。
-首先搜索全网${trackName}的最新热点话题，然后根据搜索结果生成话题，确保话题的时效性和传播性。
-生成的话题要有创意、新颖、符合${trackName}领域的最新趋势，适合新媒体内容创作。必须返回JSON格式，不要添加任何解释和其他文本。`;
+首先搜索全网${trackName}相关的最新热点话题，然后根据搜索结果生成话题，确保话题的时效性和传播性。
+生成的话题要有创意、新颖、符合${trackName}话题的最新趋势，适合新媒体内容创作。必须返回JSON格式，不要添加任何解释和其他文本。`;
 
             // 通知UI进入连接阶段
             if (window.dispatchEvent) {
@@ -390,7 +390,7 @@ id使用title的md5值。
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    model: "qwen-max", // 使用千问大模型
+                    model: "qwq-plus", // 使用千问大模型
                     messages: [
                         {
                             role: "system",
