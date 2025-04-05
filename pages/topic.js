@@ -542,6 +542,22 @@ function updateLoadingUI(phase, progress, message) {
                 if (message) stepFormatting.textContent = message;
             }
             break;
+        case 'error':
+            // 显示错误信息
+            const stepError = document.getElementById('stepConnecting');
+            if (stepError) {
+                stepError.classList.add('active', 'error');
+                if (message) stepError.textContent = message || '发生错误';
+            }
+            break;
+        case 'fallback':
+            // 显示回退到模拟数据状态
+            const stepFallback = document.getElementById('stepGenerating');
+            if (stepFallback) {
+                stepFallback.classList.add('active', 'warning');
+                if (message) stepFallback.textContent = message || '使用预设数据';
+            }
+            break;
         case 'completed':
             // 完成加载，延迟一会再隐藏
             setTimeout(() => {

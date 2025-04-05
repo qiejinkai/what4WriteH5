@@ -115,6 +115,14 @@
     font-weight: 500;
 }
 
+.loading-step.error {
+    color: var(--error-color);
+}
+
+.loading-step.warning {
+    color: var(--warning-color);
+}
+
 .loading-timer {
     margin-top: var(--spacing-sm);
     font-size: 0.8rem;

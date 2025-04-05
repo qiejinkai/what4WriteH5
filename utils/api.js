@@ -352,20 +352,22 @@ function getTopicsByTrack(trackId) {
             };
             
             const trackName = trackNameMap[trackId] || trackId;
-            const prompt = `请为${trackName}领域生成3个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
+            const prompt = `请为${trackName}领域生成10个热门话题，每个话题包含标题和描述。请按照以下JSON格式返回数据：
 {
   "code": 0,
   "message": "success",
   "data": [
     {
-      "id": "字符串ID",// 使用UUID生成
+      "id": "字符串ID",
       "title": "话题标题",
       "description": "详细描述"
     },
     ...
   ]
 }
-生成的话题要有创意、新颖、符合${trackName}领域的最新趋势，适合新媒体内容创作。`;
+id使用title的md5值。
+首先搜索全网${trackName}的最新热点话题，然后根据搜索结果生成话题，确保话题的时效性和传播性。
+生成的话题要有创意、新颖、符合${trackName}领域的最新趋势，适合新媒体内容创作。必须返回JSON格式，不要添加任何解释和其他文本。`;
 
             // 通知UI进入连接阶段
             if (window.dispatchEvent) {
@@ -373,13 +375,13 @@ function getTopicsByTrack(trackId) {
                     detail: { 
                         phase: 'connecting',
                         progress: 0.1,
-                        message: '正在连接AI服务...',
+                        message: '正在连接千问AI服务...',
                         trackId
                     }
                 }));
             }
 
-            // 调用DeepSeek-R1模型API
+            // 调用千问(Qwen-Plus)大模型API
             const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
             const response = await fetch(apiUrl, {
                 method: "POST",
@@ -388,14 +390,24 @@ function getTopicsByTrack(trackId) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    model: "deepseek-r1",
+                    model: "qwen-max", // 使用千问大模型
                     messages: [
+                        {
+                            role: "system",
+                            content: "你是一个专业的新媒体内容创作助手，擅长生成热门话题建议。请用JSON格式返回结果，不要添加任何额外的解释文本。",
+                        },
                         {
                             role: "user",
                             content: prompt,
                         },
                     ],
-                    stream: false, // 不使用流式输出
+                    enable_search: true, // 启用搜索功能，获取更新数据
+                    search_options: {
+                        "forced_search": true,     // 设置最大返回结果数量为5
+                        "search_strategy": "pro"
+                      },
+                    tool_choice: "auto"
+
                 }),
             });
 
@@ -414,8 +426,8 @@ function getTopicsByTrack(trackId) {
             // 处理响应
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('API调用失败:', errorText);
-                throw new Error(`API调用失败: ${response.status} ${response.statusText}`);
+                console.error('千问API调用失败:', errorText);
+                throw new Error(`千问API调用失败: ${response.status} ${response.statusText}`);
             }
 
             const result = await response.json();
@@ -426,7 +438,7 @@ function getTopicsByTrack(trackId) {
                     detail: { 
                         phase: 'formatting',
                         progress: 0.8,
-                        message: '整理数据格式...',
+                        message: '整理千问返回的数据...',
                         trackId
                     }
                 }));
@@ -446,7 +458,7 @@ function getTopicsByTrack(trackId) {
                         // 确保每个话题都有id
                         data.data.forEach((item, index) => {
                             if (!item.id) {
-                                item.id = `${trackId}_${index}`;
+                                item.id = `${trackId}_${index}_${Date.now()}`;
                             }
                         });
                         
@@ -456,7 +468,7 @@ function getTopicsByTrack(trackId) {
                                 detail: { 
                                     phase: 'completed',
                                     progress: 1.0,
-                                    message: '加载完成',
+                                    message: '千问数据加载完成',
                                     trackId
                                 }
                             }));
@@ -464,40 +476,117 @@ function getTopicsByTrack(trackId) {
                         
                         resolve(data.data);
                     } else {
-                        // 格式不符合预期，使用模拟数据
-                        console.error('API返回格式不符合预期:', data);
+                        console.error('千问API返回格式不符合预期:', data);
+                        // 尝试处理不同的返回格式
+                        if (data && typeof data === 'object') {
+                            // 尝试从其他可能的结构中提取数据
+                            let extractedData = [];
+                            
+                            // 如果有直接的数组
+                            if (Array.isArray(data)) {
+                                extractedData = data.map((item, index) => {
+                                    return {
+                                        id: `${trackId}_${index}_${Date.now()}`,
+                                        title: item.title || item.name || `话题${index+1}`,
+                                        description: item.description || item.content || item.desc || '暂无描述'
+                                    };
+                                });
+                            } 
+                            // 如果数据包含在其他字段中
+                            else if (data.topics || data.items || data.list || data.result) {
+                                const dataArray = data.topics || data.items || data.list || data.result;
+                                if (Array.isArray(dataArray)) {
+                                    extractedData = dataArray.map((item, index) => {
+                                        return {
+                                            id: `${trackId}_${index}_${Date.now()}`,
+                                            title: item.title || item.name || `话题${index+1}`,
+                                            description: item.description || item.content || item.desc || '暂无描述'
+                                        };
+                                    });
+                                }
+                            }
+                            
+                            if (extractedData.length > 0) {
+                                resolve(extractedData);
+                                return;
+                            }
+                        }
+                        
+                        // 如果无法提取数据，使用模拟数据
                         if (topicData[trackId]) {
                             resolve(topicData[trackId]);
                         } else {
-                            reject(new Error('赛道不存在'));
+                            reject(new Error('赛道不存在或千问API返回格式异常'));
                         }
                     }
                 } catch (e) {
-                    console.error('解析API返回内容失败:', e, result.choices[0].message.content);
+                    console.error('解析千问API返回内容失败:', e, result.choices[0].message.content);
                     // 解析失败，使用模拟数据
                     if (topicData[trackId]) {
                         resolve(topicData[trackId]);
                     } else {
-                        reject(new Error('赛道不存在'));
+                        reject(new Error('赛道不存在或千问API返回格式解析失败'));
                     }
                 }
             } else {
                 // 响应结构不符合预期，使用模拟数据
-                console.error('API响应结构不符合预期:', result);
+                console.error('千问API响应结构不符合预期:', result);
                 if (topicData[trackId]) {
                     resolve(topicData[trackId]);
                 } else {
-                    reject(new Error('赛道不存在'));
+                    reject(new Error('赛道不存在或千问API响应结构异常'));
                 }
             }
         } catch (error) {
             console.error('获取话题失败:', error);
-            // 出现异常时使用模拟数据
-            if (topicData[trackId]) {
-                resolve(topicData[trackId]);
-            } else {
-                reject(new Error('赛道不存在或API调用失败'));
+            
+            // 通知UI发生错误
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                    detail: { 
+                        phase: 'error',
+                        progress: 0,
+                        message: `千问API调用出错: ${error.message}`,
+                        trackId
+                    }
+                }));
             }
+            
+            // 等待一会再使用模拟数据，让用户看到错误信息
+            setTimeout(() => {
+                // 通知UI将使用模拟数据
+                if (window.dispatchEvent) {
+                    window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                        detail: { 
+                            phase: 'fallback',
+                            progress: 0.5,
+                            message: '使用预设数据',
+                            trackId
+                        }
+                    }));
+                }
+                
+                // 出现异常时使用模拟数据
+                if (topicData[trackId]) {
+                    setTimeout(() => {
+                        // 通知UI完成
+                        if (window.dispatchEvent) {
+                            window.dispatchEvent(new CustomEvent('api-loading-progress', {
+                                detail: { 
+                                    phase: 'completed',
+                                    progress: 1.0,
+                                    message: '已加载预设数据',
+                                    trackId
+                                }
+                            }));
+                        }
+                        
+                        resolve(topicData[trackId]);
+                    }, 1000);
+                } else {
+                    reject(new Error('赛道不存在或千问API调用失败'));
+                }
+            }, 1500);
         }
     });
 }
