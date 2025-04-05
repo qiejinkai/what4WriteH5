@@ -37,7 +37,9 @@
     background-color: var(--primary-color);
     color: white;
     border-radius: 30px;
-    padding: var(--spacing-md) var(--spacing-lg);
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 var(--spacing-lg);
     font-size: 0.95rem;
     font-weight: 600;
     display: inline-flex;
@@ -47,6 +49,7 @@
     box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
     white-space: nowrap;
     min-width: 120px;
+    flex-shrink: 0;
 }
 
 .generate-button:active {
@@ -102,16 +105,24 @@
     width: 100%;
     margin-top: var(--spacing-lg);
     align-items: center;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
 }
 
 .topic-input {
     border: 1px solid var(--gray-300);
     border-radius: 30px;
-    padding: var(--spacing-md) var(--spacing-lg);
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 var(--spacing-lg);
     font-size: 0.95rem;
     color: var(--gray-800);
     flex: 1;
+    min-width: 0;
     transition: border-color 0.2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .topic-input:focus {
@@ -386,4 +397,84 @@
     padding: var(--spacing-sm) var(--spacing-lg);
     border-radius: 20px;
     display: inline-block;
+}
+
+/* 媒体查询适配不同屏幕尺寸 */
+@media screen and (max-width: 400px) {
+    .generate-card {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+    
+    .custom-topic-input {
+        gap: 5px;
+    }
+    
+    .topic-input {
+        height: 40px;
+        padding: 0 10px;
+        font-size: 0.9rem;
+    }
+    
+    .generate-button {
+        height: 40px;
+        padding: 0 12px;
+        min-width: 80px;
+        font-size: 0.9rem;
+    }
+    
+    .generate-icon {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* 针对超小屏幕的进一步优化 */
+@media screen and (max-width: 320px) {
+    .generate-button {
+        min-width: 70px;
+        padding: 0 8px;
+    }
+    
+    .topic-input {
+        padding: 0 8px;
+    }
+    
+    .generate-button span {
+        font-size: 0.85rem;
+    }
+}
+
+/* 针对中等屏幕的设置 */
+@media screen and (min-width: 401px) and (max-width: 599px) {
+    .custom-topic-input {
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+    
+    .topic-input {
+        height: 44px;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .generate-button {
+        height: 44px;
+        min-width: 100px;
+        flex-shrink: 0;
+    }
+}
+
+/* 针对大屏幕的设置 */
+@media screen and (min-width: 600px) {
+    .custom-topic-input {
+        align-items: center;
+    }
+    
+    .topic-input {
+        height: 44px;
+    }
+    
+    .generate-button {
+        height: 44px;
+    }
 } 
