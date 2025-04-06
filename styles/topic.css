@@ -477,4 +477,85 @@
     .generate-button {
         height: 44px;
     }
+}
+
+/* 文本处理工具样式 */
+.text-area {
+    width: 100%;
+    min-height: 150px;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+    font-size: 0.95rem;
+    color: var(--gray-800);
+    resize: vertical;
+    margin: var(--spacing-md) 0;
+    font-family: inherit;
+}
+
+.text-area:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.tool-desc {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.text-tool-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.clean-btn {
+    background-color: var(--primary-color);
+}
+
+.text-preview {
+    margin-top: var(--spacing-md);
+    border-top: 1px solid var(--gray-300);
+    padding-top: var(--spacing-md);
+}
+
+.text-preview h4 {
+    color: var(--gray-700);
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.preview-content {
+    background-color: var(--gray-100);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+    min-height: 50px;
+    color: var(--gray-800);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* 弹窗样式调整 */
+.modal-content {
+    max-height: 90vh; /* 增大最大高度，适应文本工具 */
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+/* 媒体查询适配文本工具在小屏幕上的显示 */
+@media screen and (max-width: 400px) {
+    .text-tool-buttons {
+        flex-direction: column;
+    }
+    
+    .text-area {
+        min-height: 120px;
+    }
 } 

@@ -6,6 +6,7 @@
     <title>设置 - 今天写什么</title>
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/settings.css">
+    <link rel="stylesheet" href="../styles/topic.css">
 </head>
 <body>
     <div class="container">
@@ -44,11 +45,38 @@
                 <img src="../images/icons/star.svg" alt="收藏" class="nav-icon">
                 <span class="nav-text">我的收藏</span>
             </div>
+            <div class="nav-item" data-page="text-tool">
+                <img src="../images/icons/text.svg" alt="文本工具" class="nav-icon">
+                <span class="nav-text">文本工具</span>
+            </div>
         </footer>
+    </div>
+
+    <!-- 文本工具弹窗 -->
+    <div class="modal" id="textToolModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>文本处理工具</h3>
+                <button class="close-btn" id="closeTextToolBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="tool-desc">粘贴文本，移除Markdown语法，并复制到剪贴板</p>
+                <textarea id="markdownText" class="text-area" placeholder="在此粘贴包含Markdown语法的文本"></textarea>
+                <div class="text-tool-buttons">
+                    <button class="btn clean-btn" id="cleanTextBtn">清除Markdown</button>
+                    <button class="btn copy-btn" id="copyCleanTextBtn">复制纯文本</button>
+                </div>
+                <div class="text-preview">
+                    <h4>处理结果：</h4>
+                    <div id="cleanTextResult" class="preview-content"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="../utils/api.js"></script>
     <script src="../utils/common.js"></script>
+    <script src="../utils/text-tools.js"></script>
     <script src="../pages/settings.js"></script>
 </body>
 </html> 

@@ -67,6 +67,17 @@ const Navigation = {
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const targetPage = item.getAttribute('data-page');
+                
+                // 特殊处理文本工具按钮，只打开弹窗而不跳转页面
+                if (targetPage === 'text-tool') {
+                    const textToolModal = document.getElementById('textToolModal');
+                    if (textToolModal) {
+                        textToolModal.classList.add('active');
+                    }
+                    return; // 阻止跳转
+                }
+                
+                // 其他导航按钮正常跳转
                 if (targetPage) {
                     Navigation.goToPage(targetPage);
                 }
